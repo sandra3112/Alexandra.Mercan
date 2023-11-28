@@ -60,7 +60,7 @@
                         <div th:if="${product.shortDescription == shortDescription}" class="col-md-3 mb-3">
                             <div class="card">
                                 <!-- Product image -->
-							<img th:src="@{/img/products/{photo}(photo=${product.name + '_1.jpg'})}" class="card-img-top product-image text-center" alt="Product Photo"/>
+							<img th:src="@{/img/products/{photo}(photo=${product.name + '_1.jpg'})}" class="card-img-top product-image text-center border-0" alt="Product Photo"/>
                                
                                 <!-- Product details -->
                                 <div class="card-body">

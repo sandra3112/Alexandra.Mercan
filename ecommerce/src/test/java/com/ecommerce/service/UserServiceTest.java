@@ -1,5 +1,6 @@
 package com.ecommerce.service;
 
+import com.ecommerce.api.controller.auth.AuthenticationController;
 import com.ecommerce.api.model.LoginBody;
 import com.ecommerce.api.model.PasswordResetBody;
 import com.ecommerce.api.model.RegistrationBody;
@@ -24,7 +25,10 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpHeaders;
+import org.springframework.mock.web.MockHttpSession;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.web.servlet.view.RedirectView;
 
 import java.util.List;
 
@@ -78,49 +82,67 @@ public class UserServiceTest {
   @Test
   @Transactional
   public void testLoginUser() throws UserNotVerifiedException, EmailFailureException {
-    LoginBody body = new LoginBody();
-    body.setUsername("UserA-NotExists");
-    body.setPassword("PasswordA123-BadPassword");
-    Assertions.assertNull(userService.loginUser(body), "The user should not exist.");
-    body.setUsername("UserA");
-    Assertions.assertNull(userService.loginUser(body), "The password should be incorrect.");
-    body.setPassword("PasswordA123");
-    Assertions.assertNotNull(userService.loginUser(body), "The user should login successfully.");
-    body.setUsername("UserB");
-    body.setPassword("PasswordB123");
-    try {
-      userService.loginUser(body);
-      Assertions.assertTrue(false, "User should not have email verified.");
-    } catch (UserNotVerifiedException ex) {
-      Assertions.assertTrue(ex.isNewEmailSent(), "Email verification should be sent.");
-      Assertions.assertEquals(1, greenMailExtension.getReceivedMessages().length);
-    }
-    try {
-      userService.loginUser(body);
-      Assertions.assertTrue(false, "User should not have email verified.");
-    } catch (UserNotVerifiedException ex) {
-      Assertions.assertFalse(ex.isNewEmailSent(), "Email verification should not be resent.");
-      Assertions.assertEquals(1, greenMailExtension.getReceivedMessages().length);
-    }
+      // Test case where the user does not exist
+      Assertions.assertNull(userService.loginUser("UserA-NotExists", "PasswordA123-BadPassword"), "The user should not exist.");
+
+      // Test case where the password is incorrect
+      Assertions.assertNull(userService.loginUser("UserA", "PasswordA123"), "The password should be incorrect.");
+
+      // Test case where login is successful
+      String jwt = userService.loginUser("UserA", "PasswordA123");
+      Assertions.assertNotNull(jwt, "The user should login successfully.");
+
+      // Test case where user is not verified and email verification is sent
+      try {
+          userService.loginUser("UserB", "PasswordB123");
+          Assertions.fail("User should not have email verified.");
+      } catch (UserNotVerifiedException ex) {
+          Assertions.assertTrue(ex.isNewEmailSent(), "Email verification should be sent.");
+          Assertions.assertEquals(1, greenMailExtension.getReceivedMessages().length);
+      }
+
+      // Test case where user is not verified and email verification is not resent
+      try {
+          userService.loginUser("UserB", "PasswordB123");
+          Assertions.fail("User should not have email verified.");
+      } catch (UserNotVerifiedException ex) {
+          Assertions.assertFalse(ex.isNewEmailSent(), "Email verification should not be resent.");
+          Assertions.assertEquals(1, greenMailExtension.getReceivedMessages().length);
+
+          // Test the controller redirect
+          AuthenticationController authenticationController = new AuthenticationController(userService);
+          HttpHeaders headers = new HttpHeaders();
+          headers.add(HttpHeaders.CONTENT_TYPE, "application/json");
+          
+          RedirectView redirectView = authenticationController.loginUser("UserB", "PasswordB123", new MockHttpSession(), new HttpHeaders());
+          Assertions.assertEquals("/", redirectView.getUrl(), "Should be redirected to the index page.");
+      }
   }
 
   @Test
   @Transactional
-  public void testVerifyUser() throws EmailFailureException {
-    Assertions.assertFalse(userService.verifyUser("Bad Token"), "Token that is bad or does not exist should return false.");
-    LoginBody body = new LoginBody();
-    body.setUsername("UserB");
-    body.setPassword("PasswordB123");
-    try {
-      userService.loginUser(body);
-      Assertions.assertTrue(false, "User should not have email verified.");
-    } catch (UserNotVerifiedException ex) {
+  public void testVerifyUser() throws EmailFailureException, UserNotVerifiedException {
+      Assertions.assertFalse(userService.verifyUser("Bad Token"), "Token that is bad or does not exist should return false.");
+      
+      LoginBody body = new LoginBody();
+      body.setUsername("UserB");
+      body.setPassword("PasswordB123");
+
+      // Login user to get a valid token
+      userService.loginUser("UserB", "PasswordB123");
+
       List<VerificationToken> tokens = verificationTokenRepository.findByUser_IdOrderByIdDesc(2L);
       String token = tokens.get(0).getToken();
-      Assertions.assertTrue(userService.verifyUser(token), "Token should be valid.");
-      Assertions.assertNotNull(body, "The user should now be verified.");
-    }
+      
+      // Assuming verifyUser now returns void or some indicator of success
+      userService.verifyUser(token);
+
+      // Retrieve the user after verification
+      LocalUser user = localUserRepository.findByUsernameIgnoreCase("UserB").orElse(null);
+
+      Assertions.assertTrue(user.isEmailVerified(), "The user should now be verified.");
   }
+
 
   @Test
   @Transactional

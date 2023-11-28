@@ -1,6 +1,5 @@
 package com.ecommerce.service;
 
-import com.ecommerce.api.model.LoginBody;
 import com.ecommerce.api.model.PasswordResetBody;
 import com.ecommerce.api.model.RegistrationBody;
 import com.ecommerce.exception.EmailFailureException;
@@ -72,27 +71,27 @@ public class UserService {
   }
 
 //Login un utilizator
-  public String loginUser(LoginBody loginBody) throws UserNotVerifiedException, EmailFailureException {
-    Optional<LocalUser> opUser = localUserRepository.findByUsernameIgnoreCase(loginBody.getUsername());
-    if (opUser.isPresent()) {
-      LocalUser user = opUser.get();
-      if (encryptionService.verifyPassword(loginBody.getPassword(), user.getPassword())) {
-        if (user.isEmailVerified()) {
-          return jwtService.generateJWT(user);
-        } else {
-          List<VerificationToken> verificationTokens = user.getVerificationTokens();
-          boolean resend = verificationTokens.size() == 0 ||
-              verificationTokens.get(0).getCreatedTimestamp().before(new Timestamp(System.currentTimeMillis() - (60 * 60 * 1000)));
-          if (resend) {
-            VerificationToken verificationToken = createVerificationToken(user);
-            verificationTokenRepository.save(verificationToken);
-            emailService.sendVerificationEmail(verificationToken);
-          }
-          throw new UserNotVerifiedException(resend);
-        }
-      }
-    }
-    return null;
+  public String loginUser(String username, String password) throws UserNotVerifiedException, EmailFailureException {
+	    Optional<LocalUser> opUser = localUserRepository.findByUsernameIgnoreCase(username);
+	    if (opUser.isPresent()) {
+	        LocalUser user = opUser.get();
+	        if (encryptionService.verifyPassword(password, user.getPassword())) {
+	            if (user.isEmailVerified()) {
+	                return jwtService.generateJWT(user);
+	            } else {
+	                List<VerificationToken> verificationTokens = user.getVerificationTokens();
+	                boolean resend = verificationTokens.size() == 0 ||
+	                        verificationTokens.get(0).getCreatedTimestamp().before(new Timestamp(System.currentTimeMillis() - (60 * 60 * 1000)));
+	                if (resend) {
+	                    VerificationToken verificationToken = createVerificationToken(user);
+	                    verificationTokenRepository.save(verificationToken);
+	                    emailService.sendVerificationEmail(verificationToken);
+	                }
+	                throw new UserNotVerifiedException(resend);
+	            }
+	        }
+	    }
+	    return null;
   }
 
 //Verifica utilizatorul folosind token-ul de verificare

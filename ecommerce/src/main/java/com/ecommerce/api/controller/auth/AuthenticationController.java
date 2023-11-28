@@ -1,33 +1,33 @@
 package com.ecommerce.api.controller.auth;
 
-import com.ecommerce.api.model.LoginBody;
-import com.ecommerce.api.model.LoginResponse;
 import com.ecommerce.api.model.RegistrationBody;
 import com.ecommerce.api.model.PasswordResetBody;
-
 import com.ecommerce.exception.EmailFailureException;
 import com.ecommerce.exception.EmailNotFoundException;
 import com.ecommerce.exception.UserNotVerifiedException;
 import com.ecommerce.model.LocalUser;
 import com.ecommerce.exception.UserAlreadyExistsException;
-
 import com.ecommerce.service.UserService;
-
+import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
-
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.servlet.view.RedirectView;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 //Clasa de Controllere pentru gestionarea endpoint-urilor legate de autentificare
 @Controller
@@ -36,6 +36,7 @@ public class AuthenticationController {
 
 	// Injectarea dependentei UserService prin constructor
     private UserService userService;
+    private static final Logger logger = LoggerFactory.getLogger(AuthenticationController.class);
 
     public AuthenticationController(UserService userService) {
         this.userService = userService;
@@ -79,36 +80,41 @@ public class AuthenticationController {
         }
     }
 
- // Endpoint pentru gestionarea intrarii in cont a utilizatorului
-	 @PostMapping("/login")
-	  public ResponseEntity<LoginResponse> loginUser(@Valid @RequestBody LoginBody loginBody) {
-		// Gestionare user login si returnarea raspunsurilor corespunzatoare
-		 // Daca userul nu este verificat se returneaza un anumit raspuns
-	    String jwt = null;
-	    try {
-	      jwt = userService.loginUser(loginBody);
-	    } catch (UserNotVerifiedException ex) {
-	      LoginResponse response = new LoginResponse();
-	      response.setSuccess(false);
-	      String reason = "USER_NOT_VERIFIED";
-	      if (ex.isNewEmailSent()) {
-	        reason += "_EMAIL_RESENT";
-	      }
-	      response.setFailureReason(reason);
-	      return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
-	    } catch (EmailFailureException ex) {
-	      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-	    }
-	    // Daca s-a autentificat cu succes, se transmite un raspuns de succes si un JSON Web Token (JWT)
-	    if (jwt == null) {
-	      return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-	    } else {
-	      LoginResponse response = new LoginResponse();
-	      response.setJwt(jwt);
-	      response.setSuccess(true);
-	      return ResponseEntity.ok(response);
-	    }
-	  }
+ // Endpoint pentru gestionarea intrarii in cont a utilizatorului  
+    
+    @GetMapping("/login")
+    public String login(Model model) {
+        model.addAttribute("usernameExists", model.asMap().get("usernameExists"));
+        model.addAttribute("emailExists", model.asMap().get("emailExists"));
+        return "login";
+    }
+    
+    @PostMapping(path = "/login", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+    public RedirectView loginUser(
+            @RequestParam String username,
+            @RequestParam String password,
+            HttpSession session) {
+
+        // Gestionare user login si returnarea raspunsurilor corespunzatoare
+        // Daca userul nu este verificat se returneaza un anumit raspuns
+        String jwt = null;
+        try {
+            jwt = userService.loginUser(username, password);
+        } catch (UserNotVerifiedException ex) {
+            return new RedirectView("/login?error=user_not_verified");
+        } catch (EmailFailureException ex) {
+            return new RedirectView("/login?error=email_failure");
+        }
+
+        // Daca s-a autentificat cu succes, se transmite un raspuns de succes si un JSON Web Token (JWT)
+        if (jwt == null) {
+            return new RedirectView("/login?error=bad_request");
+        } else {
+            session.setAttribute("jwt", jwt);
+
+            return new RedirectView("/");
+        }
+    }
 
 	 // Endpoint pentru gestionarea verificarii email-ului utilizatorului
 	 @SuppressWarnings("rawtypes")
