@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ro">
+
+<head th:replace="~{layout :: layout_head}">
+
+</head>
+
+<body>
+	
+<div class="container" th:replace="~{layout :: layout_header}">
+	</div>
+	<p>&nbsp;</p>
+	<div class="container">
+    <form action="register_user" method="post">
+		<h2 align="center">Inregistrare utilizator nou</h2>
+		<hr />
+		<table align="center">
+			<tr>
+				<td><a href="/">Mergi la </a> login</td>
+			</tr>
+			<tr></tr>
+			<tr>
+				<td>Nume utilizator:<td>
+				<td><input type="text" name="username"/><td>
+			</tr>
+			<tr>
+				<td>Prenume:<td>
+				<td><input type="text" name="firstName"/><td>
+			</tr>
+			<tr>
+				<td>Nume:<td>
+				<td><input type="text" name="lastName"/><td>
+			</tr>
+			<tr>
+				<td>Email:<td>
+				<td><input type="text" name="email"/><td>
+			</tr>
+			<tr>
+				<td>Telefon:<td>
+				<td><input type="text" name="phoneNumber"/><td>
+			</tr>
+			<tr>
+				<td>Adresa - linia 1:<td>
+				<td><input type="text" name="line1"/><td>
+			</tr>
+			<tr>
+				<td>Adresa - lina 2:<td>
+				<td><input type="text" name="line2"/><td>
+			</tr>
+			<tr>
+				<td>Localitate:<td>
+				<td><input type="text" name="city"/><td>
+			</tr>
+			<tr>
+				<td>Judet:<td>
+				<td><input type="text" name="state"/><td>
+			</tr>
+			<tr>
+				<td>Tara:<td>
+				<td><input type="text" name="country"/><td>
+			</tr>
+			<tr>
+				<td>Cod postal:<td>
+				<td><input type="text" name="postalCode"/><td>
+			</tr>
+			<tr>
+				<td>Parola:<td>
+				<td><input type="password" name="password"/><td>
+				<td align="center"><input type="submit" name="Register" value="Register"/><td>
+			</tr>
+		</table>
+	</form>
+            </div>
+       
+ 
+		<div class="container" th:replace="~{layout :: layout_footer}">
+			</div>
+	<footer>
+	</footer>
+</body>
+
+</html>

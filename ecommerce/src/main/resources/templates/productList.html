@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product List</title>
+</head>
+<body>
+    <h2>Product List</h2>
+    
+    <div th:if="${not #lists.isEmpty(products)}">
+        <table>
+            <thead>
+                <tr>
+                    <th>Product ID</th>
+                    <th>Name</th>
+                    <th>Description</th>
+                    <th>Price</th>
+                    <!-- Add other fields as needed -->
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Loop through products and display details -->
+                <tr th:each="product : ${products}">
+                    <td th:text="${product.id}"></td>
+                    <td th:text="${product.name}"></td>
+                    <td th:text="${product.shortDescription}"></td>
+                    <td th:text="${product.price}"></td>
+                    <!-- Add other fields as needed -->
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div th:else>
+        <p>No products available.</p>
+    </div>
+</body>
+</html>

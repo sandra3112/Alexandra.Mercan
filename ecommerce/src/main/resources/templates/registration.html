@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inregistrare utilizator nou</title>
+    <head th:replace="~{layout :: layout_head}">
+</head>
+<body>
+	<div class="container" th:replace="~{layout :: layout_header}">
+	</div>
+	<p>&nbsp;</p>
+	<div class="container">
+    <h2>Inregistrare utilizator nou</h2>
+
+    
+    <form th:action="@{/auth/register}" method="post" th:object="${registrationBody}">
+        <label for="username">Username:</label>
+        <input type="text" id="username" name="username" th:field="*{username}" required><br>
+
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" th:field="*{email}" required><br>
+
+        <label for="firstName">Prenume:</label>
+        <input type="text" id="firstName" name="firstName" th:field="*{firstName}" required><br>
+
+        <label for="lastName">Nume:</label>
+        <input type="text" id="lastName" name="lastName" th:field="*{lastName}" required><br>
+
+        <label for="password">Parola:</label>
+        <input type="password" id="password" name="password" th:field="*{password}" required><br>
+
+        <button type="submit">Inregistare</button>
+    </form>
+    </div>
+    <footer>
+		<div class="container" th:replace="~{layout :: layout_footer}">
+			</div>
+	</footer>
+</body>
+</html>
