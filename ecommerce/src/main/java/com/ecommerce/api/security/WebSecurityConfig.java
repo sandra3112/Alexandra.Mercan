@@ -28,7 +28,7 @@ public class WebSecurityConfig {
 	// Defirea regulilor de autorizare pentru diferite cereri HTTP 
 	  http.authorizeHttpRequests(auth -> auth
 	    .requestMatchers("/product/**","/product", "auth/**", "/auth/register", "/auth/login",
-	            "/auth/verify", "/auth/forgot", "/auth/reset", "/error",
+	            "/auth/verify", "/auth/forgot", "/auth/reset", "/error", "/success", 
 	            "/websocket", "/layout", "/","/img/**", "/auth/layout", "/websocket/**").permitAll()
 	    .anyRequest().authenticated());
 	// Construirea si returnarea security filter chain configurat

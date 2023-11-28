@@ -14,29 +14,26 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.servlet.view.RedirectView;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.http.HttpHeaders;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 //Clasa de Controllere pentru gestionarea endpoint-urilor legate de autentificare
+
 @Controller
 @RequestMapping("/auth")
 public class AuthenticationController {
 
 	// Injectarea dependentei UserService prin constructor
+	@Autowired
     private UserService userService;
-    private static final Logger logger = LoggerFactory.getLogger(AuthenticationController.class);
 
     public AuthenticationController(UserService userService) {
         this.userService = userService;
@@ -47,48 +44,38 @@ public class AuthenticationController {
        model.addAttribute("registrationBody", new RegistrationBody());
        return "registration";
    }
+   
+   @GetMapping("/login")
+   public String login(Model model) {
+       model.addAttribute("usernameExists", model.asMap().get("usernameExists"));
+       model.addAttribute("emailExists", model.asMap().get("emailExists"));
+       return "login";
+   }
 
  // Endpoint pentru gestionarea inregistrarii utilizatorului utilizand date dintr-un formular
-    @SuppressWarnings("rawtypes")
-	@PostMapping(path = "/register", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-    @ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity registerUser(@Valid @ModelAttribute("registrationBody") RegistrationBody registrationBody, Model model) {
-    	// Returnarea raspunsurilor corespunzatoare in cazul inregistrarii
+  
+    @PostMapping(path = "/register", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+    public String registerUser(@Valid @ModelAttribute("registrationBody") RegistrationBody registrationBody, Model model) {
         try {
-            userService.registerUser(registrationBody);
-            return ResponseEntity.ok().build();
+            LocalUser user = userService.registerUser(registrationBody);
+            if (user.isEmailVerified()) {
+                return "/";
+            } else {
+                
+                return "/success";
+            }
         } catch (UserAlreadyExistsException ex) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).build();
+            model.addAttribute("error", "Utilizator existent");
+            return "login";
         } catch (EmailFailureException e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
-    }
-
- // Endpoint pentru gestionarea inregistrarii utilizatorului utilizand date in format JSON
-    @SuppressWarnings("rawtypes")
-	@PostMapping(path = "/register", consumes = MediaType.APPLICATION_JSON_VALUE)
-    @ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity registerUserJson(@Valid @RequestBody RegistrationBody registrationBody) {
-    	// Returnarea raspunsurilor corespunzatoare in cazul inregistrarii
-        try {
-            userService.registerUser(registrationBody);
-            return ResponseEntity.ok().build();
-        } catch (UserAlreadyExistsException ex) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).build();
-        } catch (EmailFailureException e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            model.addAttribute("error", "Eroare transmitere Email");
+            return "error";
         }
     }
 
  // Endpoint pentru gestionarea intrarii in cont a utilizatorului  
     
-    @GetMapping("/login")
-    public String login(Model model) {
-        model.addAttribute("usernameExists", model.asMap().get("usernameExists"));
-        model.addAttribute("emailExists", model.asMap().get("emailExists"));
-        return "login";
-    }
-    
+   
     @PostMapping(path = "/login", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
     public RedirectView loginUser(
             @RequestParam String username,

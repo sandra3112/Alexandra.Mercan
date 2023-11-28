@@ -25,7 +25,6 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.HttpHeaders;
 import org.springframework.mock.web.MockHttpSession;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.servlet.view.RedirectView;
@@ -111,10 +110,8 @@ public class UserServiceTest {
 
           // Test the controller redirect
           AuthenticationController authenticationController = new AuthenticationController(userService);
-          HttpHeaders headers = new HttpHeaders();
-          headers.add(HttpHeaders.CONTENT_TYPE, "application/json");
           
-          RedirectView redirectView = authenticationController.loginUser("UserB", "PasswordB123", new MockHttpSession(), new HttpHeaders());
+          RedirectView redirectView = authenticationController.loginUser("UserB", "PasswordB123", new MockHttpSession());
           Assertions.assertEquals("/", redirectView.getUrl(), "Should be redirected to the index page.");
       }
   }

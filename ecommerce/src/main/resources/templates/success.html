@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout :: layout_head}">
+	<title>Transilana SA - Inregistrare utilizator nou - success</title>
+    <style>
+		
+        form {
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .input-control {
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+            margin-bottom: 10px;
+        }
+
+        input.input-control,
+        select.input-control {
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body class="d-flex flex-column">
+    <div class="container" th:replace="~{layout :: layout_header}"></div>
+
+    <div class="container my-3 my-sm-5 page-content text-center">
+                                <h1 class="mb-2 w-75"><i class="fas fa-check text-primary" alt = "Succes"></i></h1>
+                                <p>&nbsp;</p>
+                                
+                                <h3 class="mb-2 w-75">Felicitari, contul dumneavoastra a fost creat cu succes.</h3>
+                                <p> Pe adresa dumneavoastra de email a fost trimis un mesaj care contine un link pentru validarea contului.</p>
+                            
+                            <p>&nbsp;</p>
+                            <p>&nbsp;</p>
+                            
+                            <a href="/"><h3>Inapoi la pagina principala</h3></a>
+                            </div>
+                    
+    <footer>
+        <div class="container-fluid" th:replace="~{layout :: layout_footer}"></div>
+    </footer>
+</body>
+</html>

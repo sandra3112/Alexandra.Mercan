@@ -12,6 +12,8 @@ import com.ecommerce.model.repository.LocalUserRepository;
 import com.ecommerce.model.repository.VerificationTokenRepository;
 
 import jakarta.transaction.Transactional;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
@@ -21,6 +23,7 @@ import java.util.Optional;
 @Service
 public class UserService {
 
+@Autowired
   private LocalUserRepository localUserRepository;
   private VerificationTokenRepository verificationTokenRepository;
   private EncryptionService encryptionService;
