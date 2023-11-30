@@ -27,7 +27,7 @@ public class WebSecurityConfig {
 	  http.addFilterBefore(jwtRequestFilter, AuthorizationFilter.class);
 	// Defirea regulilor de autorizare pentru diferite cereri HTTP 
 	  http.authorizeHttpRequests(auth -> auth
-	    .requestMatchers("/product/**","/product", "auth/**", "/auth/register", "/auth/login",
+	    .requestMatchers("/product_1","/product", "auth/**", "/auth/register", "/auth/login",
 	            "/auth/verify", "/auth/forgot", "/auth/reset", "/error", "/success", 
 	            "/websocket", "/layout", "/","/img/**", "/auth/layout", "/websocket/**").permitAll()
 	    .anyRequest().authenticated());

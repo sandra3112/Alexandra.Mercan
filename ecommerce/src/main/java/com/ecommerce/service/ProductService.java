@@ -27,4 +27,7 @@ public class ProductService {
   public Page<Product> getProductsPaged(Pageable pageable) {
 	    return productRepository.findAll(pageable);
 }
+  public List<Product> getProductsByShortDescription(String shortDescription) {
+      return productRepository.findByShortDescription(shortDescription);
+  }
 }

@@ -8,7 +8,7 @@ import org.springframework.boot.autoconfigure.domain.EntityScan;
 //Adnotare prin care se mentioneaza ca aceasta clasa este o aplicatie Spring Boot
 @SpringBootApplication
 
-//Cautare entitati Java Persistence APIin package-ul mentionat
+//Cautare entitati Java Persistence API in package-ul mentionat
 @EntityScan(basePackages = "com.ecommerce.model")
 public class EcommerceApplication {
 

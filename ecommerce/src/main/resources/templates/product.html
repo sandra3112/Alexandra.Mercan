@@ -3,35 +3,9 @@
 <head>
    <title>Transilana - Magazin online</title>
     <head th:replace="~{layout :: layout_head}">
-
+    
 </head>
 <body>
-	
-	<div class="container" th:replace="~{layout :: layout_header}"></div>
-
-    <div class="container">
-        <!-- Display pagination controls -->
-       <nav aria-label="Page navigation">
-        <ul class="pagination">
-            <li th:if="${currentPage > 0}" class="page-item">
-                <a th:href="@{/product/list?page=0&size=${pageSize}}" class="page-link">First</a>
-            </li>
-            <li th:if="${currentPage > 0}" class="page-item">
-                <a th:href="@{/product/list?page=${currentPage - 1}&size=${pageSize}}" class="page-link">Previous</a>
-            </li>
-            <li th:each="i : ${#numbers.sequence(0, totalPages - 1)}" class="page-item" th:classappend="${i == currentPage} ? 'active'">
-                <a th:href="@{/product/list?page=${i}&size=${pageSize}}" class="page-link" th:text="${i + 1}"></a>
-            </li>
-            <li th:if="${currentPage < totalPages - 1}" class="page-item">
-                <a th:href="@{/product/list?page=${currentPage + 1}&size=${pageSize}}" class="page-link">Next</a>
-            </li>
-            <li th:if="${currentPage < totalPages - 1}" class="page-item">
-                <a th:href="@{/product/list?page=${totalPages - 1}&size=${pageSize}}" class="page-link">Last</a>
-            </li>
-        </ul>
-    </nav>
-    <p>&nbsp;</p>
-
 <style>
 		
  .product-image {
@@ -41,38 +15,51 @@
         }
 .product-container {
             display: grid;
+            border: 0;
             grid-template-columns: repeat(3, 1fr); /* This will create 3 columns with equal width */
             text-align: center;
             gap: 2px; /* Adjust the gap between products as needed */
         }
     </style>
-    
+	
+	<div class="container" th:replace="~{layout :: layout_header}"></div>
+
+    <div class="container border-0">
+        <!-- Display pagination controls -->
+       
+    <p>&nbsp;</p>    
 
      <!-- Iterate over uniqueShortDescriptions -->
         <div th:each="shortDescription : ${uniqueShortDescriptions}">
-            <div class="container">
+            <div class="container border-0">
                 <h2 class="text-center" th:text="${shortDescription}"></h2>
 
                 <!-- Display products in a grid -->
-                <div class="product-container">
-                    <!-- Filter products based on short description -->
-                    <div th:each="product : ${products}">
-                        <div th:if="${product.shortDescription == shortDescription}" class="col-md-3 mb-3">
-                            <div class="card">
-                                <!-- Product image -->
-							<img th:src="@{/img/products/{photo}(photo=${product.name + '_1.jpg'})}" class="card-img-top product-image text-center border-0" alt="Product Photo"/>
-                               
-                                <!-- Product details -->
-                                <div class="card-body">
-                                    <h5 class="card-title text-center" th:text="${product.shortDescription + ' ' + product.name}" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 400px;"></h5>
-                                    <p class="card-text"><strong><class="text-muted">Pret: <span th:text="${product.price} + '0 lei'" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 400px;"></span></strong></p>
-                                    <a th:href="@{/product/details/{id}(id=${product.id})}" class="btn btn-primary">Vezi detalii</a>
-                                </div>
-                            </div>
-                        </div>
+                <div class="product-container border-0">
+    <!-- Filter products based on short description -->
+    <div th:each="product : ${products}">
+        <div th:if="${product.shortDescription == shortDescription}" class="col-md-3 mb-3">
+            <div class="text-center card border-0">
+                <!-- Product image -->
+                <img th:src="@{/img/products/{photo}(photo=${product.name + '_1.jpg'})}" class="text-center border-0 card-img-top product-image" alt="Product Photo"/>
+                <!-- Product details -->
+                <div class="text-center card-body border-0">
+                    <h5 class="card-title text-center" th:text="${product.shortDescription + ' ' + product.name}" style="white-space: wrap; overflow: hidden; text-overflow: ellipsis; width: 200px;"></h5>
+                    <div class="text-center">
+                    <p><strong><span th:text="'Pret: ' + ${product.price} + '0 lei'" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 200px;"></span></strong></p>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <a th:href="@{/product/details/{id}(id=${product.id})}" class="btn btn-primary mr-3">Vezi detalii</a>
+                        
+                        <a th:href="@{/product/buy/{id}(id=${product.id})}" class="btn btn-success">Cumpara</a>
                     </div>
                 </div>
             </div>
+        </div>
+    </div>
+</div>
+            </div>
+        </div>
         </div>
 
 

@@ -8,6 +8,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -29,7 +30,7 @@ public class ProductController {
 //Apelarea metodei ProductService pentru a obține lista de produse
   @GetMapping
   public String getProducts(Model model, @RequestParam(defaultValue = "0") int page,
-          @RequestParam(defaultValue = "10") int size) {
+          @RequestParam(defaultValue = "100") int size) {
 	  PageRequest pageRequest = PageRequest.of(page, size);
 	  Page<Product> productPage = productService.getProductsPaged(pageRequest);
 
@@ -60,5 +61,47 @@ return "product";
       model.addAttribute("uniqueShortDescriptions", uniqueShortDescriptions);
 
       return "productList";
+  }
+  
+  @GetMapping("/product_{productId}")
+  public String showProductsByCategory(Model model, @PathVariable String productId) {
+      String shortDescription = getShortDescriptionByProductId(productId);
+
+      List<Product> productsByCategory = productService.getProductsByShortDescription(shortDescription);
+      model.addAttribute("products", productsByCategory);
+      model.addAttribute("category", shortDescription);
+
+      return "product_" + productId;
+  }
+
+  @GetMapping("/product_1")
+  public String showProductsForCategory1(Model model) {
+	  System.out.println("Invoking showProductsForCategory1");
+      return showProductsByCategory(model, "1");
+  }
+
+  @GetMapping("/product_2")
+  public String showProductsForCategory2(Model model) {
+      return showProductsByCategory(model, "2");
+  }
+
+  @GetMapping("/product_3")
+  public String showProductsForCategory3(Model model) {
+      return showProductsByCategory(model, "3");
+  }
+
+  private String getShortDescriptionByProductId(String productId) {
+      
+      switch (productId) {
+          case "1":
+              return "Fir pentru tricotat Merino Clasic";
+          case "2":
+              return "Fir pentru tricotat Merino Fantezie";
+          case "3":
+              return "Fir pentru tricotat Merino Alpaca";
+          
+          default:
+              return "UnknownCategory";
+      }
   }
 }
