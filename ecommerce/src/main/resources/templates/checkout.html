@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout :: layout_head}">
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Plasare comanda</title>
+</head>
+<style>
+body {
+	margin: 0;
+}
+
+.cart-table {
+	border-collapse: collapse;
+	width: 100%;
+}
+
+.cart-table th, .cart-table td {
+	border: 1px solid #ddd;
+	padding: 8px;
+	text-align: left;
+}
+
+.cart-table th {
+	background-color: #f2f2f2;
+}
+
+.cart-table .align-right {
+	text-align: right;
+}
+
+.cart-table .align-center {
+	text-align: center;
+}
+
+.small-space {
+	height: 10px;
+	background-color: white;
+}
+</style>
+<body class="d-flex flex-column">
+	<div class="container" th:replace="~{layout :: layout_header}"></div>
+	<div class="container mt-2 main-container">
+		<div class="row">
+			<div class="col-md-10">
+				<p style="text-align: right">
+					<strong>User ID: <span th:text="${userId}"></span></strong>
+				</p>
+				<h1>Finalizare comanda</h1>
+				<div class="row">
+					<form th:action="@{/checkout/placeOrder}" th:object="${orderForm}"
+						method="post" onsubmit="return validateUser()">
+						<input type="hidden" id="userId" name="userId"
+							th:value="${userId}" />
+						<div th:each="item, itemStat : ${orderForm.cartItems}">
+							<input type="hidden"
+								th:field="*{cartItems[__${itemStat.index}__].productId}" /> <input
+								type="hidden"
+								th:field="*{cartItems[__${itemStat.index}__].quantity}" />
+						</div>
+						<div class="small-space"></div>
+						<h4>Cosul de cumparaturi</h4>
+						<div class="small-space"></div>
+						<th:block th:if="${not #lists.isEmpty(cartItems)}">
+							<div class="table-responsive">
+								<table class="table cart-table">
+									<thead>
+										<tr>
+											<th class="align-left">Denumirea produsului</th>
+											<th class="align-right">Imaginea produsului</th>
+											<th class="align-right">Pretul unitar</th>
+											<th class="align-center">Cantitatea</th>
+											<th class="align-right">Valoarea</th>
+										</tr>
+									</thead>
+									<tbody>
+										<tr th:each="item, stat : ${cartItems}">
+											<td class="align-left"><span
+												th:text="${item.shortDescription}"></span><br> <span
+												th:text="${item.productName}"></span></td>
+											<td class="align-center"><img
+												th:src="@{/img/products/{photo}(photo=${item.productName + '_1.jpg'})}"
+												class="text-center border-0 card-img-top product-image"
+												alt="Product Photo" th:style="'width: 50px; height: 80px;'" /></td>
+											<td class="align-right"><span
+												th:text="${#numbers.formatDecimal(item.productPrice, 2, 'COMMA', 2, 'POINT')}"></span>
+												<span> lei</span></td>
+											<td class="align-center"><span
+												th:text="${item.quantity}"></span></td>
+											<td class="align-right"><span
+												th:text="${#numbers.formatDecimal(item.amount, 2, 'COMMA', 2, 'POINT')}"></span>
+												<span> lei</span></td>
+										</tr>
+										<tr>
+											<td colspan="3" class="align-right"><strong>Total:</strong></td>
+											<td class="align-center"><strong> <span
+													th:text="${#numbers.formatDecimal(cartTotal, 2, 'COMMA', 2, 'POINT')}"></span>
+													<span> lei</span>
+											</strong></td>
+											<td></td>
+										</tr>
+									</tbody>
+								</table>
+							</div>
+						</th:block>
+						<p>&nbsp;</p>
+						<h4>Adresa de livrare</h4>
+						<div class="small-space"></div>
+						<div class="table-responsive">
+							<div>
+								<label for="addressLine1"></label> <input type="text"
+									id="addressLine1" name="addressLine1"
+									th:value="${userAddress.addressLine1}" required
+									style="border: none;">
+							</div>
+							<div>
+								<label for="addressLine2"></label> <input type="text"
+									id="addressLine2" name="addressLine2"
+									th:value="${userAddress.addressLine2}" style="border: none;">
+							</div>
+							<div>
+								<label for="city"></label> <input type="text" id="city"
+									name="city" th:value="${userAddress.city}" required
+									style="border: none;">
+							</div>
+							<div>
+								<label for="country"></label> <input type="text" id="country"
+									name="country" th:value="${userAddress.country}" required
+									style="border: none;">
+							</div>
+						</div>
+						<p>&nbsp;</p>
+						<h4>Metoda de livrare</h4>
+						<div class="small-space"></div>
+						<label for="shippingMethod"></label> <select id="shippingMethod"
+							name="shippingMethod" required>
+							<option value="standard" style="width: 400px;">DPD
+								Curier</option>
+							<option value="express" style="width: 400px;">Fan
+								Courier</option>
+						</select>
+						<p>&nbsp;</p>
+						<h4>Metoda de plata</h4>
+						<div class="small-space"></div>
+						<label for="paymentMethod"></label> <select id="paymentMethod"
+							name="paymentMethod" required>
+							<option value="creditCard" style="width: 400px;">Card
+								online</option>
+							<option value="paypal" style="width: 400px;">PayPal</option>
+						</select>
+						<p>&nbsp;</p>
+						<button class="btn btn-primary mr-5 submit float-right"
+							onclick="return validateUser();">Plaseaza comanda</button>
+						<p>&nbsp;</p>
+						<p>&nbsp;</p>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+	<footer>
+		<div class="container-fluid" th:replace="~{layout :: layout_footer}"></div>
+	</footer>
+	<script>
+		function validateUser() {
+			var userId = document.getElementById("userId").value;
+			console.log('var userId este: ' + userId);
+			if (userId === null || userId === 0) {
+
+				window.location.href = "/login?redirect=/checkout/" + userId;
+				return false;
+			}
+			var orderId = orderId;
+			window.location.href = "redirect:/checkout/thankyou/" + orderId;
+			;
+			return true;
+		}
+		function sendOrderDataToServer(orderForm) {
+			var url = "/placeOrder";
+			var xhr = new XMLHttpRequest();
+			xhr.open("POST", url, true);
+			xhr.setRequestHeader("Content-Type", "application/json");
+			xhr.onreadystatechange = function() {
+				if (xhr.readyState === 4) {
+					console.log("Order placed successfully");
+				}
+			};
+
+			var data = JSON.stringify(orderForm);
+
+			xhr.send(data);
+		}
+		var orderForm = {
+			cartTotal : getCartTotal(),
+		};
+		sendOrderDataToServer(orderForm);
+	</script>
+</body>
+</html>

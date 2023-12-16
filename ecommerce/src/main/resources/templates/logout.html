@@ -1,48 +1,43 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{layout :: layout_head}">
-	<title>Transilana SA - Logout</title>
-    <style>
-		
-        form {
-            max-width: 400px;
-            margin: 0 auto;
-        }
+<title>Transilana SA - Logout</title>
+<style>
+form {
+	max-width: 400px;
+	margin: 0 auto;
+}
 
-        label {
-            display: block;
-            margin-bottom: 5px;
-        }
+label {
+	display: block;
+	margin-bottom: 5px;
+}
 
-        .input-control {
-            width: 100%;
-            padding: 8px;
-            box-sizing: border-box;
-            margin-bottom: 10px;
-        }
+.input-control {
+	width: 100%;
+	padding: 8px;
+	box-sizing: border-box;
+	margin-bottom: 10px;
+}
 
-        input.input-control,
-        select.input-control {
-            width: 100%;
-            padding: 8px;
-            box-sizing: border-box;
-            margin-bottom: 10px;
-        }
-    </style>
+input.input-control, select.input-control {
+	width: 100%;
+	padding: 8px;
+	box-sizing: border-box;
+	margin-bottom: 10px;
+}
+</style>
 </head>
 <body class="d-flex flex-column">
-    <div class="container" th:replace="~{layout :: layout_header}"></div>
-
-    <div class="container my-3 my-sm-5 page-content text-center">
-   
-                        <p>&nbsp;</p>
-                        <div class="form-group text-center mb-2 w-75">
-                            <a href="/"><h3>Mergi la pagina principala</h3></a>
-                        </div>
-                    </div>
-
-    <footer>
-        <div class="container-fluid" th:replace="~{layout :: layout_footer}"></div>
-    </footer>
+	<div class="container" th:replace="~{layout :: layout_header}"></div>
+	<div class="container my-3 my-sm-5 page-content text-center">
+		<p>&nbsp;</p>
+		<div class="form-group text-center mb-2 w-75">
+			<a href="/"><h3>Mergi la pagina principala</h3></a>
+		</div>
+	</div>
+	<footer>
+		<div class="container-fluid" th:replace="~{layout :: layout_footer}"></div>
+	</footer>
 </body>
 </html>

@@ -1,19 +1,17 @@
 package com.ecommerce.model.repository;
 
-import com.ecommerce.model.LocalUser;
-import com.ecommerce.model.VerificationToken;
-
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.data.repository.ListCrudRepository;
 
 import java.util.List;
 import java.util.Optional;
 
+import com.ecommerce.model.LocalUser;
+import com.ecommerce.model.VerificationToken;
+
+@ComponentScan
 public interface VerificationTokenRepository extends ListCrudRepository<VerificationToken, Long> {
-
-  Optional<VerificationToken> findByToken(String token);
-
-  void deleteByUser(LocalUser user);
-
-  List<VerificationToken> findByUser_IdOrderByIdDesc(Long id);
-
+    Optional<VerificationToken> findByToken(String token);
+    List<VerificationToken> findByUser_IdOrderByIdDesc(Long id);
+    void deleteByUser(LocalUser user);
 }

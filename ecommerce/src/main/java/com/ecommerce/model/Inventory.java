@@ -1,6 +1,7 @@
 package com.ecommerce.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -14,43 +15,40 @@ import jakarta.persistence.Table;
 @Table(name = "Inventory")
 public class Inventory {
 	
-	@Id
-	  @GeneratedValue(strategy = GenerationType.IDENTITY)
-	  @Column(name = "id", nullable = false)
-	  private Long id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id", nullable = false)
+    private Long id;
 	 
-	// Relatie One-to-One cu product, utilizand product_id ca si cheie
-	  @JsonIgnore
-	  @OneToOne(optional = false, orphanRemoval = true)
-	  @JoinColumn(name = "product_id", nullable = false, unique = true)
-	  private Product product;
+    @JsonIgnore
+    @OneToOne(optional = false, orphanRemoval = true) 			// Relatie One-to-One cu product, utilizand product_id ca si cheie
+    @JoinColumn(name = "product_id", nullable = false, unique = true)
+    private Product product;
 	 
-	// Cantitatea produsului in inventar, nu poate fi numa
-	  @Column(name = "quantity", nullable = false)
-	  private Integer quantity;
+    @Column(name = "quantity", nullable = false) 			// Cantitatea produsului in inventar, nu poate fi nula
+    private Integer quantity;
+    
+    public Long getId() {
+	return id;
+    }
 
-	  public Integer getQuantity() {
-	    return quantity;
-	  }
+    public void setId(Long id) {
+	this.id = id;
+    }
 
-	  public void setQuantity(Integer quantity) {
-	    this.quantity = quantity;
-	  }
+    public Product getProduct() {
+	return product;
+    }
 
-	  public Product getProduct() {
-	    return product;
-	  }
+    public void setProduct(Product product) {
+	this.product = product;
+    }
 
-	  public void setProduct(Product product) {
-	    this.product = product;
-	  }
+    public Integer getQuantity() {
+	return quantity;
+    }
 
-	  public Long getId() {
-	    return id;
-	  }
-
-	  public void setId(Long id) {
-	    this.id = id;
-	  }
-
+    public void setQuantity(Integer quantity) {
+	this.quantity = quantity;
+    }
 }

@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="ro" xmlns:th="http://www.thymeleaf.org">
+<head>
+<title>Transilana SA - Magazin online - Contact</title>
+<head th:replace="~{layout :: layout_head}">
+</head>
+<body>
+	<div class="container" th:replace="~{layout :: layout_header}"></div>
+	<p>&nbsp;</p>
+	<p>&nbsp;</p>
+	<p style="text-align: center">
+		<img class="img-fluid" th:src="@{/img/var/banner-1.jpg}" alt="Contact">
+	</p>
+	<div class="container">
+		<div class="table table-responsive" style="overflow-x: visible;">
+			<p>&nbsp;</p>
+			<table class="table">
+				<thead>
+					<tr>
+						<th style="width: 50%"><h3></h3></th>
+						<th style="width: 10%"><h3></h3></th>
+						<th style="width: 70%"><h3></h3></th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td class="text-align:left">
+							<h2>Informații de contact</h2>
+							<p>&nbsp;</p>
+							<h4>TRANSILANA SA</h4>
+							<p>
+								<i class="fa fa-envelope" style="color: #FFA500"></i>
+								info@transilana.ro
+							</p>
+							<p>
+								<i class="fa fa-phone" style="color: #FFA500"></i> +40 268 475
+								448
+							</p>
+							<p>
+								<i class="fa fa-home" style="color: #FFA500"></i> Str.
+								Fabricilor nr. 44<br>Ghimbav 507075, Brașov <br>
+								Romania
+							</p>
+							<p>&nbsp;</p>
+							<h2>Indicații de orientare</h2>
+							<p>&nbsp;</p> <iframe
+								src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2788.1180634343614!2d25.512835315778656!3d45.66853012780634!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x40b35a85ab0d7cf5%3A0x750b7aa44092ad39!2sTransilana!5e0!3m2!1sro!2sro!4v1515755862836"
+								width="600" height="450" style="border: 0" allowfullscreen>
+							</iframe>
+						</td>
+						<td></td>
+						<td class="text-align:left">
+							<h2 class="text-align:left">Formular de contact</h2>
+							<p>&nbsp;</p>
+							<p>&nbsp;</p>
+							<div class="controls">
+								<div class="row">
+									<form id="contact-form" method="post" th:action="@{/contact}"
+										th:object="${contactForm}" role="form">
+										<div class="row">
+											<div class="col-md-12">
+												<div class="form-group">
+													<label for="name">Nume *</label> <input type="text"
+														class="form-control" id="name" th:field="*{name}"
+														placeholder="Nume și prenume">
+													<p th:if="${#fields.hasErrors('name')}" class="text-danger"
+														th:errors="*{name}"></p>
+												</div>
+											</div>
+										</div>
+										<div class="row">
+											<div class="col-md-12">
+												<div class="form-group">
+													<label for="email">Email *</label> <input type="email"
+														class="form-control" id="email" name="email"
+														placeholder="exemplu@domeniu.ro" th:field="*{email}" />
+													<p class="text-danger"
+														th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></p>
+												</div>
+											</div>
+										</div>
+										<div class="row">
+											<div class="col-md-12">
+												<div class="form-group">
+													<label for="phone">Telefon</label> <input id="phone"
+														name="phone" class="form-control" placeholder=""
+														type="tel" th:field="*{phone}" />
+												</div>
+											</div>
+										</div>
+										<div class="row">
+											<div class="col-md-12">
+												<div class="form-group">
+													<label for="message">Mesaj *</label>
+													<textarea class="form-control" name="message" rows="4"
+														th:field="*{message}"></textarea>
+													<p class="text-danger"
+														th:if="${#fields.hasErrors('message')}"
+														th:errors="*{message}"></p>
+												</div>
+											</div>
+										</div>
+										<div class="row">
+											<div class="col-md-12">
+												<div class="form-group">
+													<label for="human">2 + 3 = ? *</label>
+													<div class="row">
+														<div class="col-md-12">
+															<input type="text" class="form-control" id="human"
+																name="human" placeholder="Răspunsul dvs."
+																th:field="*{human}" />
+															<p class="text-danger"
+																th:if="${#fields.hasErrors('human')}"
+																th:errors="*{human}"></p>
+														</div>
+													</div>
+													<p class="text-muted">
+														<strong>*</strong> Aceste câmpuri sunt obligatorii.
+													</p>
+												</div>
+											</div>
+										</div>
+										<h1>&nbsp;</h1>
+										<div class="row">
+											<div class="col-md-12">
+												<div class="text-left">
+													<input id="submit" name="submit" type="submit"
+														class="btn btn-success btn-send" value="Trimite mesaj">
+												</div>
+											</div>
+										</div>
+										<p>&nbsp;</p>
+										<p>&nbsp;</p>
+										<div th:if="${successMessage}" class="alert alert-success"
+											role="alert">
+											<strong th:text="${successMessage}"></strong>
+										</div>
+									</form>
+								</div>
+							</div>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+	</div>
+	<p>&nbsp;</p>
+	<p>&nbsp;</p>
+	<footer>
+		<div class="container" th:replace="~{layout :: layout_footer}"></div>
+	</footer>
+	<script>
+		window.onscroll = function() {
+			scrollFunction()
+		};
+
+		function scrollFunction() {
+			if (document.body.scrollTop > 20
+					|| document.documentElement.scrollTop > 20) {
+				document.getElementById("myBtn").style.display = "block";
+			} else {
+				document.getElementById("myBtn").style.display = "none";
+			}
+		}
+
+		function topFunction() {
+			document.body.scrollTop = 0;
+			document.documentElement.scrollTop = 0;
+		}
+		$(document).on('contextmenu', function() {
+			$('#exampleModal').modal('show');
+			return false;
+		});
+	</script>
+</body>
+</html>

@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout :: layout_head}">
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cosul de cumparaturi</title>
+</head>
+<style>
+body {
+	margin: 0;
+}
+
+.cart-table {
+	border-collapse: collapse;
+	width: 100%;
+}
+
+.cart-table th, .cart-table td {
+	border: 1px solid #ddd;
+	padding: 8px;
+	text-align: left;
+}
+
+.cart-table th {
+	background-color: #f2f2f2;
+}
+
+.cart-table .align-right {
+	text-align: right;
+}
+
+.cart-table .align-center {
+	text-align: center;
+}
+</style>
+<div class="container" th:replace="~{layout :: layout_header}"></div>
+<div class="container mt-2 main-container">
+	<div class="row">
+		<div class="col-md-10">
+			<p style="text-align: right">
+				<strong>User ID: <span th:text="${userId}"></span></strong>
+			</p>
+			<p>&nbsp;</p>
+			<h2>Cosul tau de cumparaturi</h2>
+			<p>&nbsp;</p>
+			<th:block th:if="${not #lists.isEmpty(cartItems)}">
+				<div class="table-responsive">
+					<table class="table cart-table">
+						<thead>
+							<tr>
+								<th class="align-left">Denumirea produsului</th>
+								<th class="align-right">Imaginea produsului</th>
+								<th class="align-right">Pretul unitar</th>
+								<th class="align-center">Cantitatea</th>
+								<th class="align-right">Valoarea</th>
+								<th class="align-center">Actiuni</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr th:each="item, stat : ${cartItems}">
+								<td class="align-left"><span
+									th:text="${item.shortDescription}"></span><br> <span
+									th:text="${item.productName}"></span></td>
+								<td class="align-center"><img
+									th:src="@{/img/products/{photo}(photo=${item.productName + '_1.jpg'})}"
+									class="text-center border-0 card-img-top product-image"
+									alt="Product Photo" th:style="'width: 50px; height: 80px;'" /></td>
+								<td class="align-right"><span
+									th:text="${#numbers.formatDecimal(item.productPrice, 2, 'COMMA', 2, 'POINT')}"></span>
+									<span> lei</span></td>
+								<td class="align-center">
+									<!-- Butoane + / - pentru cantitate) -->
+									<button class="btn btn-outline-secondary mr-2"
+										th:onclick="'adjustQuantity(this, -1)'"
+										th:data-item-id="${item.id}">-</button> <span
+									th:text="${item.quantity}"></span>
+									<button class="btn btn-outline-secondary ml-2"
+										th:onclick="'adjustQuantity(this, 1)'"
+										th:data-item-id="${item.id}">+</button>
+								</td>
+								<td class="align-right"><span
+									th:text="${#numbers.formatDecimal(item.amount, 2, 'COMMA', 2, 'POINT')}"></span>
+									<span> lei</span></td>
+								<!-- Butoane delete, refresh -->
+								<td class="align-center">
+									<!-- Buton Refresh Item -->
+									<button class="btn btn-outline-secondary mr-2"
+										th:attr="data-item-id=${item.id}" onclick="refreshItem(this)">
+										<i class="fas fa-sync"></i>
+									</button> <!-- Buton Delete Item -->
+									<button class="btn btn-outline-secondary ml-2"
+										th:onclick="'deleteItem(\'' + ${item.id} + '\')'">
+										<i class="fas fa-trash"></i>
+									</button>
+								</td>
+							</tr>
+							<tr>
+								<td colspan="4" class="align-right"><strong>Total:</strong></td>
+								<td class="align-right"><strong> <span
+										th:text="${#numbers.formatDecimal(cartTotal, 2, 'COMMA', 2, 'POINT')}"></span>
+										<span> lei</span>
+								</strong></td>
+								<td></td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</th:block>
+			<!-- Buton refresh cart -->
+			<button class="btn btn-primary mr-5" onclick="refreshEntireCart()">Actualizeaza
+				cosul</button>
+			<!-- Buton golire cart -->
+			<button class="btn btn-primary mr-5" onclick="clearEntireCart()">Goleste
+				cosul</button>
+			<!-- Buton intoarcere la produse -->
+			<button class="btn btn-primary mr-5" onclick="returnToProducts()">Continua
+				cumparaturile</button>
+			<p>&nbsp;</p>
+			<p>&nbsp;</p>
+			<!-- Add a button to finalize the order -->
+			<a class="btn btn-primary float-right"
+				th:href="'/checkout/' + ${userId}">Finalizeaza comanda</a>
+			<p>&nbsp;</p>
+			<p>&nbsp;</p>
+			<p>&nbsp;</p>
+		</div>
+	</div>
+</div>
+<footer>
+	<div class="container" th:replace="~{layout :: layout_footer}"></div>
+</footer>
+<script defer>
+function adjustQuantity(button, increment) {
+    const itemId = button.getAttribute('data-item-id');
+
+    fetch('/cart/adjustQuantity', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ itemId: itemId, increment: increment }),
+    })
+    .then(response => {
+        console.log('Full response:', response);
+
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+            return response.json();
+        } else {
+            return response.text(); 
+        }
+    })
+    .then(data => {
+        console.log('Response body:', data);
+
+    })
+    .catch(error => {
+        console.error('Error:', error);
+    });
+}
+
+function refreshItem(button) {
+    const itemId = button.getAttribute('data-item-id');
+
+    fetch('/cart/adjustQuantity', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ itemId: itemId, increment: 0 }), 
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Adjustment failed');
+        }
+        return response.text(); 
+    })
+    .then(data => {
+        console.log('Data received:', data);
+
+        if (data === 'Adjustment successful') {
+ 
+            location.reload();
+        } else {
+            console.error('Adjustment failed');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+    });
+}
+
+function deleteItem(itemId) {
+
+    fetch('/cart/deleteItem', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ itemId: itemId }), 
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Deletion failed');
+        }
+        return response.text();
+    })
+    .then(data => {
+        console.log('Data received:', data);
+
+        if (data === 'Item deleted successfully') {
+ 
+            location.reload();
+        } else {
+            console.error('Deletion failed');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+    });
+}
+
+function refreshEntireCart() {
+    fetch('/cart/refresh', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Refresh failed');
+        }
+        return response.text();
+    })
+    .then(data => {
+        console.log('Data received:', data);
+
+        if (data === 'Cart refreshed successfully') {
+
+            location.reload();
+        } else {
+            console.error('Refresh failed');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+    });
+}
+
+function clearEntireCart() {
+
+    fetch('/cart/clear', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Clear failed');
+        }
+        return response.text();
+    })
+    .then(data => {
+        console.log('Data received:', data);
+
+ 
+        if (data === 'Cart cleared successfully') {
+ 
+            location.reload();
+        } else {
+            console.error('Clear failed');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+    });
+}
+
+function returnToProducts() {
+  
+    window.location.href = '/product'; 
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org./1999/xhtml">
+<head th:replace="~{layout :: layout_head}">
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+</head>
+<body class="d-flex flex-column">
+	<div class="container" th:replace="~{layout :: layout_header}"></div>
+	<div class="container page-content">
+		<div class="row">
+			<div class="col-md-4 col-lg-3">
+				<!-- Sidebar -->
+				<div class="card">
+					<div class="card-body bg-dark text-center">
+						<img th:src="@{/img/var/user.png}" width="100" height="100"
+							alt="User" class="rounded-circle mb-3">
+						<h4 class="bold mb-0"
+							th:text="${#strings.capitalize(userDetails.username)}"></h4>
+						<small class="text-secondary"
+							th:text="'Ultima accesare '+${#dates.format(#dates.createNow(), 'dd MMM yyyy')}"></small>
+					</div>
+					<div class="list-group list-group-flush">
+						<a th:href="@{/profile}"
+							class="list-group-item bg-dark list-group-item-action"><i
+							data-feather="user" class="mr-3"></i> <strong> Profilul
+								meu</strong></a> <a th:href="@{/orders}"
+							class="list-group-item bg-dark list-group-item-action"><i
+							data-feather="shopping-bag" class="mr-3"></i> <strong>
+								Comenzile mele</strong></a> <a th:href="@{/addresses}"
+							class="list-group-item bg-dark list-group-item-action active"><i
+							data-feather="map" class="mr-3"></i> <strong> Adresele
+								mele </strong></a> <a th:href="@{/reset/password}"
+							class="list-group-item bg-dark list-group-item-action"><i
+							data-feather="map" class="mr-3"></i> <strong> Schimba
+								parola </strong></a> <a th:href="@{/logout}"
+							class="list-group-item bg-dark list-group-item-action text-danger"><i
+							data-feather="log-out" class="mr-3"></i><strong> Logout</strong></a>
+					</div>
+				</div>
+			</div>
+			<div class="col mt-3 mt-md-0">
+				<div th:if="${updateSuccess}"
+					class="alert alert-success alert-dismissible fade show"
+					role="alert">
+					<strong th:text="${updateSuccess}"></strong>
+					<button type="button" class="close" data-dismiss="alert"
+						aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+				</div>
+				<div class="card">
+					<div class="card-body">
+						<p>&nbsp;</p>
+						<h3>Adresele mele</h3>
+						<hr>
+						<!-- Iterate printre adrese-->
+						<th:block th:each="address : ${addresses}">
+							<form th:action="@{/update-address}" novalidate method="post">
+								<input type="hidden" id="addressId" name="id"
+									th:value="${address.addressId}" />
+								<div class="form-group">
+									<label for="addressLine1">Adresa</label> <input type="text"
+										class="form-control w-75" id="addressLine1"
+										name="addressLine1" th:value="${address.addressLine1}"
+										autocomplete="Adresa">
+								</div>
+								<div class="form-group">
+									<label for="addressLine2">Adresa (linia a 2-a)</label> <input
+										type="text" class="form-control w-75" id="addressLine2"
+										name="addressLine2" th:value="${address.addressLine2}"
+										autocomplete="Adresa">
+								</div>
+								<div class="form-group">
+									<label for="city">Oras</label> <input type="text"
+										class="form-control w-75" id="city" name="city"
+										th:value="${address.city}" autocomplete="Oras">
+								</div>
+								<div class="form-group">
+									<label for="country">Tara</label> <input type="text"
+										class="form-control w-75" id="country" name="country"
+										th:value="${address.country}" autocomplete="Tara">
+								</div>
+								<p>&nbsp;</p>
+								<div class="form-group">
+									<button id="updateAddressButton" type="submit"
+										class="btn btn-primary">Actualizeaza adresa</button>
+								</div>
+							</form>
+						</th:block>
+					</div>
+					<p>&nbsp;</p>
+					<p>&nbsp;</p>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="container-fluid" th:replace="~{layout :: layout_footer}"></div>
+	<script>
+		$(document).ready(function() {
+			$('#updateAddressButton').click(function() {
+				console.log("Button clicked!");
+				// Only handle address update, no need for password-related logic
+				$('#addressForm').submit();
+			});
+		});
+	</script>
+</body>
+</html>

@@ -1,6 +1,7 @@
 package com.ecommerce.api.controller.product;
 
 import org.junit.jupiter.api.Test;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -12,14 +13,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
-public class ProductControllerTest {
+class ProductControllerTest {
+    
+    @Autowired
+    private MockMvc mvc;
 
-  @Autowired
-  private MockMvc mvc;
-
-  @Test
-  public void testProductList() throws Exception {
-    mvc.perform(get("/product")).andExpect(status().is(HttpStatus.OK.value()));
-  }
-
+    @Test
+    void productList() throws Exception {
+	mvc.perform(get("/product")).andExpect(status().is(HttpStatus.OK.value()));
+    }
 }

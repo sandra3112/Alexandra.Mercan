@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+	<div class="container border-0">
+		<div style="text-align: left;">
+			<h4>Rezultatele cautarii:</h4>
+			<div th:each="product : ${searchResults}">
+				<p style="text-align: left">
+					<strong><a
+						th:href="@{'/product/details/' + ${product.id}}"
+						th:text="${product.name}"></a></strong>
+				</p>
+			</div>
+			<p style="text-align: left;">
+				<a href="/">Inapoi la cautare</a>
+			</p>
+		</div>
+	</div>
+</body>
+</html>

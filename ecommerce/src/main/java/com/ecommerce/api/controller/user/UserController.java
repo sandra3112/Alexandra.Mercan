@@ -1,106 +1,147 @@
 package com.ecommerce.api.controller.user;
 
-import com.ecommerce.api.model.DataChange;
-import com.ecommerce.model.Address;
-import com.ecommerce.model.LocalUser;
-import com.ecommerce.model.repository.AddressRepository;
-import com.ecommerce.service.UserService;
+import java.util.List;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.PostMapping;
 
-import java.util.List;
-import java.util.Optional;
+import com.ecommerce.exception.UserNotFoundException;
+import com.ecommerce.model.Address;
+import com.ecommerce.model.AddressDto;
+import com.ecommerce.model.LocalUser;
+import com.ecommerce.model.repository.AddressRepository;
+import com.ecommerce.service.OrderService;
+import com.ecommerce.service.UserService;
 
-@RestController
-@RequestMapping("/user")
+
+@Controller
+@ComponentScan
 public class UserController {
 
-	// Injectarea dependentelor prin constructori
-  private AddressRepository addressRepository;
-  private SimpMessagingTemplate simpMessagingTemplate;
-  private UserService userService;
+    @SuppressWarnings("unused")
+    private AddressRepository addressRepository;
+   
+    @SuppressWarnings("unused")
+    private SimpMessagingTemplate simpMessagingTemplate;
+    private UserService userService;
+  
+    @SuppressWarnings("unused")
+    private OrderService orderService;
+  
+    @SuppressWarnings("unused")
+    private static final Logger log = LoggerFactory.getLogger(UserController.class);
 
-  public UserController(AddressRepository addressRepository,
-                        SimpMessagingTemplate simpMessagingTemplate,
-                        UserService userService) {
-    this.addressRepository = addressRepository;
-    this.simpMessagingTemplate = simpMessagingTemplate;
-    this.userService = userService;
-  }
-
-//Endpoint pentru obtinerea adreselor unui anumit utilizator
-  @GetMapping("/{userId}/address")
-  public ResponseEntity<List<Address>> getAddress(
-      @AuthenticationPrincipal LocalUser user, @PathVariable Long userId) {
-	// Verificare pentru a vedea daca utilizatorul autentificat are permisiunea sa acceseze adresele utilizatorului specificat
-    if (!userService.userHasPermissionToUser(user, userId)) {
-      return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+    public UserController(AddressRepository addressRepository,
+                       	SimpMessagingTemplate simpMessagingTemplate,
+                       	UserService userService, OrderService orderService) {
+	this.addressRepository = addressRepository;
+	this.simpMessagingTemplate = simpMessagingTemplate;
+	this.userService = userService;
+	this.orderService = orderService;
     }
- // Returnarea adreselor pentru utilizatorul specificat
-    return ResponseEntity.ok(addressRepository.findByUser_Id(userId));
-  }
-
-//Endpoint pentru adaugarea unei noi adrese pentru utilizatorul specificat
-  @PutMapping("/{userId}/address")
-  public ResponseEntity<Address> putAddress(
-      @AuthenticationPrincipal LocalUser user, @PathVariable Long userId,
-      @RequestBody Address address) {
-	// Verificare pentru a vedea daca userul autentificat are permisiunea sa adauge o adresa pentru utilizatorul specificat
-    if (!userService.userHasPermissionToUser(user, userId)) {
-      return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+  
+    @GetMapping("/profile")
+    public String viewProfile(Model model) {
+	Long userId = userService.getCurrentUserId();
+	LocalUser localUser = userService.getUserDetails(userId);
+	    
+	model.addAttribute("userDetails", localUser);
+	model.addAttribute("username", localUser.getUsername());
+	model.addAttribute("firstName", localUser.getFirstName());
+	model.addAttribute("lastName", localUser.getLastName());
+	model.addAttribute("email", localUser.getEmail());
+	return "profile";
     }
- // Setarea ID-ului la null pentru a ne asigura ca o noua adresa este creata
-    address.setId(null);
- // Crearea unui user de referinta cu ID-ul userului specificat pentru adresa
-    LocalUser refUser = new LocalUser();
-    refUser.setId(userId);
-    address.setUser(refUser);
- // Salvarea adresei si trimiterea unei notificari catre subscriber despre noua adresa
-    Address savedAddress = addressRepository.save(address);
-    simpMessagingTemplate.convertAndSend("/topic/user/" + userId + "/address",
-        new DataChange<>(DataChange.ChangeType.INSERT, address));
-    return ResponseEntity.ok(savedAddress);
-  }
-
-//Endpoint pentru actualizarea unei adrese existente pentru un utilizator specificat
-  @PatchMapping("/{userId}/address/{addressId}")
-  public ResponseEntity<Address> patchAddress(
-      @AuthenticationPrincipal LocalUser user, @PathVariable Long userId,
-      @PathVariable Long addressId, @RequestBody Address address) {
-	// Verificare pentru a vedea daca utilizatorul autentificat are permisiunea sa modifice adresa utilizatorului specificat
-    if (!userService.userHasPermissionToUser(user, userId)) {
-      return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+  
+    @PostMapping("/update-user-info")
+    public String updateDetails(@ModelAttribute("userDetails") LocalUser userDetails, Model model) throws UserNotFoundException {
+	try {
+	    System.out.println("Updating user details. User ID: " + userDetails.getId());
+	    userService.updateUserInfo(userDetails);
+	    
+	    model.addAttribute("updateSuccess", "Detaliile au fost actualizate cu succes");
+	} catch (UserNotFoundException e) {
+	    model.addAttribute("userNotFound", true);
+	}
+	return "redirect:/profile";
     }
- // Verificare pentru a vedea daca ID-ul adresei corespunde cu variabila addressId
-    if (address.getId() == addressId) {
-    	// Obtinerea adresei original din repository-ul cu adrese
-      Optional<Address> opOriginalAddress = addressRepository.findById(addressId);
-      if (opOriginalAddress.isPresent()) {
-        LocalUser originalUser = opOriginalAddress.get().getUser();
-     // Verificare pentru a vedea daca adresa originala apartine userului specificat
-        if (originalUser.getId() == userId) {
-        	// Actualizarea utilizatorului si salvarea adresei modificate
-          address.setUser(originalUser);
-          Address savedAddress = addressRepository.save(address);
-          // Transmiterea unei notificari subscriberului despre actualizarea adresei
-          simpMessagingTemplate.convertAndSend("/topic/user/" + userId + "/address",
-              new DataChange<>(DataChange.ChangeType.UPDATE, address));
-          return ResponseEntity.ok(savedAddress);
-        }
-      }
-    }
- // Returnarea unui raspuns de genul "bad request" daca conditiile nu sunt indeplinite
-    return ResponseEntity.badRequest().build();
-  }
+    
+    @GetMapping("/addresses")
+    public String getAddressPage(@AuthenticationPrincipal LocalUser userDetails, Model model) {
+	if (userDetails != null) {
+	    Long userId = userService.getCurrentUserId();
+	    LocalUser localUser = userService.getUserDetails(userId);
+	    List<AddressDto> addressDtos = userService.getUserAddresses(userId);
 
+	    System.out.println("UserId: " + userId); //Syso pentru debuggind
+	    System.out.println("UserDetails: " + localUser);
+          
+	    addressDtos.forEach(dto -> System.out.println("Address ID: " + dto.getAddressId()));
+	    System.out.println("AddressDtos: " + addressDtos);
+
+	    model.addAttribute("userDetails", localUser);
+	    model.addAttribute("addresses", addressDtos);
+	}
+
+	return "addresses";
+    }
+  
+    @GetMapping("/add-address")
+    public String getAddAddressPage(Model model) {
+	Long userId = userService.getCurrentUserId();
+	
+	@SuppressWarnings("unused")
+	LocalUser localUser = userService.getUserDetails(userId);
+	Address newAddress = new Address();
+      
+	model.addAttribute("newAddress", newAddress);
+	return "add-address";
+    }
+
+    @PostMapping("/add-address")
+    public String addAddress(@AuthenticationPrincipal LocalUser userDetails,
+	@ModelAttribute("newAddress") Address newAddress) {
+	Long userId = userService.getCurrentUserId();
+      
+	@SuppressWarnings("unused")
+	LocalUser localUser = userService.getUserDetails(userId);
+	if (userDetails != null) {
+	    userService.addAddress(newAddress);
+	}
+	return "redirect:/addresses";
+    }
+
+    @GetMapping("/update-address/{addressId}")
+    public String getUpdateAddressPage(@AuthenticationPrincipal LocalUser userDetails,
+	    @PathVariable Long addressId, Model model) {
+	Long userId = userService.getCurrentUserId();
+      
+	@SuppressWarnings("unused")
+	LocalUser localUser = userService.getUserDetails(userId);
+	Address addressToUpdate = userService.getAddressById(userDetails, addressId);
+      
+	model.addAttribute("addressToUpdate", addressToUpdate);
+	return "update-address";
+    }
+
+    @PostMapping("/update-address")
+    public String updateAddress(@AuthenticationPrincipal LocalUser userDetails,
+	    @ModelAttribute("addressToUpdate") Address addressToUpdate) {
+	Long userId = userService.getCurrentUserId();
+      
+	@SuppressWarnings("unused")
+	LocalUser localUser = userService.getUserDetails(userId);
+	userService.updateAddress(userDetails, addressToUpdate);
+	return "redirect:/addresses";
+    }
 }

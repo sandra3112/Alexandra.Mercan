@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org./1999/xhtml">
+<head th:replace="~{layout :: layout_head}">
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+</head>
+<body class="d-flex flex-column">
+	<div class="container" th:replace="~{layout :: layout_header}"></div>
+	<div class="container page-content">
+		<div class="row">
+			<div class="col-md-4 col-lg-3">
+				<!-- Sidebar -->
+				<div class="card">
+					<div class="card-body bg-dark text-center">
+						<img th:src="@{/img/var/user.png}" width="100" height="100"
+							alt="User" class="rounded-circle mb-3">
+						<h4 class="bold mb-0"
+							th:text="${#strings.capitalize(userDetails.username)}"></h4>
+						<small class="text-secondary"
+							th:text="'Ultima accesare '+${#dates.format(#dates.createNow(), 'dd MMM yyyy')}"></small>
+					</div>
+					<div class="list-group list-group-flush">
+						<a th:href="@{/profile}"
+							class="list-group-item bg-dark list-group-item-action active"><i
+							data-feather="user" class="mr-3"></i> <strong> Profilul
+								meu</strong></a> <a th:href="@{/orders}"
+							class="list-group-item bg-dark list-group-item-action"><i
+							data-feather="shopping-bag" class="mr-3"></i> <strong>
+								Comenzile mele</strong></a> <a th:href="@{/addresses}"
+							class="list-group-item bg-dark list-group-item-action"><i
+							data-feather="map" class="mr-3"></i> <strong> Adresele
+								mele </strong></a> <a th:href="@{/reset/password}"
+							class="list-group-item bg-dark list-group-item-action"><i
+							data-feather="map" class="mr-3"></i> <strong> Schimba
+								parola </strong></a> <a th:href="@{/logout}"
+							class="list-group-item bg-dark list-group-item-action text-danger"><i
+							data-feather="log-out" class="mr-3"></i><strong> Logout</strong></a>
+					</div>
+				</div>
+			</div>
+			<div class="col mt-3 mt-md-0">
+				<div th:if="${updateSuccess}"
+					class="alert alert-success alert-dismissible fade show"
+					role="alert">
+					<strong th:text="${updateSuccess}"></strong>
+					<button type="button" class="close" data-dismiss="alert"
+						aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+				</div>
+				<div th:if="${incorrectPassword}"
+					class="alert alert-danger alert-dismissible fade show" role="alert">
+					<strong>Parola incorecta</strong>
+					<button type="button" class="close" data-dismiss="alert"
+						aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+				</div>
+				<div class="card">
+					<div class="card-body">
+						<p>&nbsp;</p>
+						<h3>Profilul meu</h3>
+						<p>&nbsp;</p>
+						<hr>
+						<form id="profileForm" th:action="@{/update-user-info}" novalidate
+							method="post">
+							<input type="hidden" id="userId" name="id"
+								th:value="${userDetails.id}" />
+							<div class="form-group">
+								<label for="firstName"><strong> Prenume</strong></label> <input
+									type="text" class="form-control w-75" id="firstName"
+									name="firstName" th:value="${userDetails.firstName}"
+									autocomplete="Prenume">
+							</div>
+							<div class="form-group">
+								<label for="lastName"><strong> Nume</strong></label> <input
+									type="text" class="form-control w-75" id="lastName"
+									name="lastName" th:value="${userDetails.lastName}"
+									autocomplete="Nume">
+							</div>
+							<div class="form-group">
+								<label for="userName"><strong> Username</strong></label> <input
+									required="required" type="text" class="form-control w-75"
+									th:classappend="${usernameExists} ? is-invalid" id="userName"
+									name="username" th:value="${userDetails.username}"
+									autocomplete="username">
+								<div class="invalid-feedback">Username deja utilizat.
+									Alegeti alt username</div>
+							</div>
+							<div class="form-group">
+								<label for="email"><strong> Email</strong></label> <input
+									required="required" type="text" class="form-control w-75"
+									th:classappend="${emailExists} ? is-invalid" id="email"
+									name="email" th:value="${userDetails.email}"
+									autocomplete="email">
+								<div class="invalid-feedback">Email utilizat. Introduceti
+									alt email.</div>
+							</div>
+							<p>&nbsp;</p>
+							<div class="form-group">
+								<button id="updateUserInfoButton" type="button"
+									class="btn btn-primary">Actualizeaza profilul</button>
+								<p>&nbsp;</p>
+								<p>&nbsp;</p>
+								<p>&nbsp;</p>
+							</div>
+						</form>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="container-fluid" th:replace="~{layout :: layout_footer}"></div>
+	<script>
+		$(document).ready(function() {
+			$('#updateUserInfoButton').click(function() {
+				console.log("Button clicked!");
+
+				$('#profileForm').submit();
+			});
+		});
+	</script>
+</body>
+</html>

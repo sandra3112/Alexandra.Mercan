@@ -1,31 +1,31 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{layout :: layout_head}">
-	<title>Eroare</title>
+<title>Eroare 404</title>
 </head>
 <body>
-<body class="d-flex flex-column" >
-    <div class="container" th:replace="~{layout :: layout_header}"></div>
-    <div class = "container text-center">
-     <p>&nbsp;</p>
-      <p>&nbsp;</p>
-    <h1>Eroare!</h1>
-     <p>&nbsp;</p>
-      <p>&nbsp;</p>
-    <p>Vedeti aceasta pagina ca urmare a unei autentificari esuate.<br>Va rugam verificati datele utilizate pentru accesarea contului si reincercati autentificarea.</p>
-    
-     <p>&nbsp;</p>
-      <p>&nbsp;</p>
-       <a href="/auth/login"><h3>Intra in cont</h3></a>
-       <p>&nbsp;</p>
-        <p>&nbsp;</p>
-        
-        
- 
-    
-    </div>
- <footer>
-        <div class="container-fluid" th:replace="~{layout :: layout_footer}"></div>
-    </footer>
+<body class="d-flex flex-column">
+	<div class="container" th:replace="~{layout :: layout_header}"></div>
+	<div class="container text-center">
+		<p>&nbsp;</p>
+		<p>&nbsp;</p>
+		<h1>Eroare!</h1>
+		<h1 class="font-weight-bolder">
+			<mark>404</mark>
+		</h1>
+		<p>&nbsp;</p>
+		<p>&nbsp;</p>
+		<p>Pagina pe care incercati sa o accesati a fost stearsa,
+			redenumita sau este termporar indisponibila.</p>
+		<p>&nbsp;</p>
+		<a href="/"> <span><h3>Mergi la pagina principala</h3></span>
+		</a>
+		<p>&nbsp;</p>
+		<p>&nbsp;</p>
+		<p>&nbsp;</p>
+	</div>
+	<footer>
+		<div class="container-fluid" th:replace="~{layout :: layout_footer}"></div>
+	</footer>
 </body>
 </html>

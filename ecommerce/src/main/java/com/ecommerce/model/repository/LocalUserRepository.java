@@ -1,15 +1,23 @@
 package com.ecommerce.model.repository;
 
-import com.ecommerce.model.LocalUser;
-
 import java.util.Optional;
 
-import org.springframework.data.repository.CrudRepository;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
+import com.ecommerce.model.LocalUser;
 
-public interface LocalUserRepository extends CrudRepository<LocalUser, Long> {
+@ComponentScan
+public interface LocalUserRepository extends JpaRepository<LocalUser, Long> {
 
-	Optional<LocalUser> findByUsernameIgnoreCase(String username);
-	Optional<LocalUser> findByEmailIgnoreCase(String email);
-
+    LocalUser findByUsername(String username);
+    Optional<LocalUser> findById(Long userId);
+    Optional<LocalUser> findByUsernameIgnoreCase(String username);
+    Optional<LocalUser> findByEmail(String email);
+    Optional<LocalUser> findByEmailIgnoreCase(String email);
+	
+    @Query("SELECT DISTINCT u FROM LocalUser u LEFT JOIN FETCH u.addresses WHERE u.id = :userId")
+    Optional<LocalUser> findUserWithAddressesById(@Param("userId") Long userId);
 }

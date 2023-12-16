@@ -1,5 +1,132 @@
-<!-- product_1.html -->
-<html xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{layout :: layout_head}"></head>
-<body th:replace="product_template :: product_template (${shortDescription='Fir pentru tricotat Merino Clasic'})"></body>
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+<title>Transilana - Magazin online</title>
+<head th:replace="~{layout :: layout_head}">
+</head>
+<body>
+	<style>
+.product-image {
+	width: 250px;
+	height: 100%;
+	object-fit: cover;
+}
+
+.product-container {
+	display: grid;
+	border: 0;
+	grid-template-columns: repeat(3, 1fr);
+	text-align: center;
+	gap: 2px;
+}
+</style>
+	<div class="container" th:replace="~{layout :: layout_header}"></div>
+	<div class="container border-0">
+
+		<h1 class="mt-1" id="merino_clasic" style="text-align: center">Fire
+			pentru tricotat</h1>
+		<h1 style="text-align: center">
+			<strong><i>~ Colectia Merino Clasic ~</i></strong>
+		</h1>
+		<p>&nbsp;</p>
+		<div class="product-container border-0">
+			<div th:each="product : ${products}" class="col-md-3 mb-3">
+				<div class="text-center card border-0">
+					<div class="position-relative">
+						<div
+							th:if="${product.inventory == null or product.inventory.quantity <= 0}"
+							class="position-absolute bg-danger text-light p-3"
+							style="font-size: x-large; border: 3px solid black;">Stoc
+							epuizat</div>
+						<img
+							th:src="@{/img/products/{photo}(photo=${product.name + '_1.jpg'})}"
+							class="text-center border-0 card-img-top product-image"
+							alt="Product Photo" />
+					</div>
+					<div class="text-center card-body border-0">
+						<h5 class="card-title text-center"
+							th:text="${product.shortDescription + ' ' + product.name}"
+							style="white-space: wrap; overflow: hidden; text-overflow: ellipsis; width: 200px;"></h5>
+						<div class="text-center">
+							<p>
+								<strong><span
+									th:text="'Pret: ' + ${product.price} + '0 lei'"
+									style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 200px;"></span></strong>
+							</p>
+						</div>
+						<div class="d-flex justify-content-between">
+							<a th:href="@{/product/details/{id}(id=${product.id})}"
+								class="btn btn-primary mr-3">Vezi detalii</a>
+							<form class="addToCartForm" th:action="@{/cart/add}"
+								method="post" th:object="${cartRequest}">
+								<input type="hidden" class="productId" name="productId"
+									th:value="${product.id}" /> <input type="hidden"
+									class="userId" name="userId"
+									th:value="${userId == null ? 0 : userId}" /> <input
+									type="hidden" class="quantity" name="quantity" th:value="1" />
+								<button
+									th:if="${product.inventory != null and product.inventory.quantity > 0}"
+									class="buyButton btn btn-success ml-5"
+									data-productid="${product.id}">Cumpara</button>
+							</form>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<footer>
+		<div class="container" th:replace="~{layout :: layout_footer}">
+		</div>
+	</footer>
+	<script type="text/javascript"
+		src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+	<script>
+		$(document)
+				.ready(
+						function() {
+
+							$('.buyButton')
+									.on(
+											'click',
+											function(e) {
+
+												var form = $(this).closest(
+														'.addToCartForm');
+
+												var userId = form.find(
+														'.userId').val();
+												console.log('Current user is: '
+														+ userId);
+
+												var productId = form.find(
+														'.productId').val();
+												console.log('ProductId is: '
+														+ productId
+														+ ' and quantity: 1');
+
+												userId = (userId == null || userId === undefined) ? 0
+														: userId;
+												console.log('New userId este: '
+														+ userId);
+
+												form.find('.quantity').val(1);
+
+												initiatePurchase(1, form);
+											});
+
+							function initiatePurchase(quantity, form) {
+
+								console.log('Form data:', form.serialize());
+
+								console
+										.log('Initiating purchase for product ID '
+												+ form.find('.productId').val()
+												+ ' with quantity: ' + quantity);
+
+								form.submit();
+							}
+						});
+	</script>
+</body>
 </html>

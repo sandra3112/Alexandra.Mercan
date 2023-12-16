@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout :: layout_head}">
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Comenzile mele</title>
+</head>
+<style>
+body {
+	margin: 0;
+}
+
+.cart-table {
+	border-collapse: collapse;
+	width: 100%;
+}
+
+.cart-table th, .cart-table td {
+	border: 1px solid #ddd;
+	padding: 8px;
+	text-align: left;
+}
+
+.cart-table th {
+	background-color: #f2f2f2;
+}
+
+.cart-table .align-right {
+	text-align: right;
+}
+
+.cart-table .align-center {
+	text-align: center;
+}
+
+.white-background-table {
+	background-color: white;
+}
+</style>
+<body class="d-flex flex-column">
+	<div class="container" th:replace="~{layout :: layout_header}"></div>
+	<div class="container page-content">
+		<div class="row">
+			<div class="col-md-4 col-lg-3">
+				<!-- Sidebar -->
+				<div class="card">
+					<div class="card-body bg-dark text-center">
+						<img th:src="@{/img/var/user.png}" width="100" height="100"
+							alt="User" class="rounded-circle mb-3">
+						<p th:text="${userDetails}" style="display: none;"></p>
+						<h4 class="bold mb-0" th:if="${userDetails != null}"
+							th:text="${#strings.capitalize(userDetails.username)}"></h4>
+						<small class="text-secondary"
+							th:text="'Ultima accesare '+${#dates.format(#dates.createNow(), 'dd MMM yyyy')}"></small>
+					</div>
+					<div class="list-group list-group-flush">
+						<a th:href="@{/profile}"
+							class="list-group-item bg-dark list-group-item-action"><i
+							data-feather="user" class="mr-3"></i> <strong> Profilul
+								meu</strong></a> <a th:href="@{/orders}"
+							class="list-group-item bg-dark list-group-item-action active"><i
+							data-feather="shopping-bag" class="mr-3"></i> <strong>
+								Comenzile mele</strong></a> <a th:href="@{/addresses}"
+							class="list-group-item bg-dark list-group-item-action"><i
+							data-feather="map" class="mr-3"></i> <strong> Adresele
+								mele </strong></a> <a th:href="@{/reset/password}"
+							class="list-group-item bg-dark list-group-item-action"><i
+							data-feather="map" class="mr-3"></i> <strong> Schimba
+								parola </strong></a> <a th:href="@{/logout}"
+							class="list-group-item bg-dark list-group-item-action text-danger"><i
+							data-feather="log-out" class="mr-3"></i><strong> Logout</strong></a>
+					</div>
+				</div>
+			</div>
+			<div class="col mt-3 mt-md-0">
+				<input type="hidden" id="userId" name="id"
+					th:value="${userDetails.id}" />
+				<!-- Content -->
+				<p>&nbsp;</p>
+				<div class="container mt-2 main-container">
+					<h2>Comenzile mele</h2>
+					<p>&nbsp;</p>
+					<th:block th:if="${orders != null and not #lists.isEmpty(orders)}">
+						<div class="table-responsive">
+							<table class="table cart-table" id="myOrderTable">
+								<thead>
+									<tr>
+										<th class="align-center">ID Comanda</th>
+										<th class="align-center">Data Comenzii</th>
+										<th class="align-center">Data Livrarii</th>
+										<th class="align-center">Total Valoare</th>
+										<th class="align-center">Detalii comanda</th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr th:each="order : ${orders}">
+										<td class="align-center" th:text="${order.id}"></td>
+										<td class="align-center"
+											th:text="${#dates.format(order.orderDate, 'dd MMM yyyy')}"></td>
+										<td class="align-center"
+											th:text="${#dates.format(order.shippingDate, 'dd MMM yyyy')}"></td>
+										<td class="align-center"
+											th:text="${#numbers.formatDecimal(order.orderTotal, 2, 'COMMA', 2, 'POINT') + ' lei'}"></td>
+										<td>
+											<p class="align-center">
+												<a th:href="@{/orders/{orderId}(orderId=${order.id})}">Vezi
+													Detalii</a>
+											</p>
+										</td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+					</th:block>
+					<p th:unless="${orders != null and not #lists.isEmpty(orders)}">Nu
+						exista comenzi de afisat.</p>
+					<p>&nbsp;</p>
+					<p>&nbsp;</p>
+				</div>
+			</div>
+		</div>
+		<p>&nbsp;</p>
+		<p>&nbsp;</p>
+	</div>
+</body>
+<footer>
+	<div class="container-fluid" th:replace="~{layout :: layout_footer}"></div>
+</footer>
+</html>
