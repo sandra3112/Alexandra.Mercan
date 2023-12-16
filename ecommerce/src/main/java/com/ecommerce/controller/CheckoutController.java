@@ -106,6 +106,8 @@ public class CheckoutController {
             Long orderId = orderService.placeOrder(userId,  session);
             System.out.println("Comanda plasata cu succes. Order ID: " + orderId);
             
+            shoppingCartService.removeItemsAfterOrderPlaced(cartItems);
+            
             session.removeAttribute("cartItems");
             session.removeAttribute("cartTotal");
 

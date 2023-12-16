@@ -31,22 +31,23 @@ public class ProductController {
 
     @GetMapping
     public String getProducts(Model model, @RequestParam(defaultValue = "0") int page,
-	    			@RequestParam(defaultValue = "100") int size) {
+	    @RequestParam(defaultValue = "100") int size, Authentication authentication) {
+	Long userId = getCurrentUserId(authentication);
 	PageRequest pageRequest = PageRequest.of(page, size);
 	Page<Product> productPage = productService.getProductsPaged(pageRequest);
-
-	List<String> uniqueShortDescriptions = productPage.getContent().stream()
-	      .map(Product::getShortDescription)
-	      .distinct()
-	      .collect(Collectors.toList());
+	List<String> uniqueShortDescriptions = productPage.getContent().stream()	
+		.map(Product::getShortDescription)
+		.distinct()
+		.collect(Collectors.toList());
 
 	model.addAttribute("products", productPage.getContent());
 	model.addAttribute("uniqueShortDescriptions", uniqueShortDescriptions);
 	model.addAttribute("currentPage", page);
 	model.addAttribute("pageSize", size);
 	model.addAttribute("totalPages", productPage.getTotalPages());
+	model.addAttribute("userId", userId);
 
-	System.out.println("@GetMapping getProducts - returnare pagina product");
+	System.out.println("@GetMapping getProducts - returnare pagina product - userId este: " + userId);
 	return "product";
     }
   
@@ -78,24 +79,28 @@ public class ProductController {
     }
   
     @GetMapping("/product_2")
-    public String getProduct2(Model model) {
+    public String getProduct2(Model model, Authentication authentication) {
 	String shortDescription = "Fir pentru tricotat Merino Fantezie";
 	List<Product> productsByCategory = productService.getProductsByShortDescription(shortDescription);
+	Long userId = getCurrentUserId(authentication);
 
+	model.addAttribute("userId", userId); 
 	model.addAttribute("products", productsByCategory);
 
-	System.out.println("@GetMapping getProduct2 - return product_2.html");
+	System.out.println("@GetMapping getProduct2 - return product_2.html cu userID: " + userId);
 	return "product_2";
     }
   
     @GetMapping("/product_3")
-    public String getProduct3(Model model) {
+    public String getProduct3(Model model, Authentication authentication) {
 	String shortDescription = "Fir pentru tricotat Merino Alpaca";
 	List<Product> productsByCategory = productService.getProductsByShortDescription(shortDescription);
+	Long userId = getCurrentUserId(authentication);
 
+	model.addAttribute("userId", userId); 
 	model.addAttribute("products", productsByCategory);
 
-	System.out.println("@GetMapping getProduct3 - return product_3.html");
+	System.out.println("@GetMapping getProduct3 - return product_3.html cu userID: " + userId);
 	return "product_3";
     }
   

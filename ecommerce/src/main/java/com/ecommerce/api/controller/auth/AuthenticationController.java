@@ -45,8 +45,8 @@ public class AuthenticationController {
 
     @GetMapping("/register")
     public String showRegistrationForm(Model model) {
-       model.addAttribute("registrationBody", new RegistrationBody());
-       return "registration";
+       model.addAttribute("registrationBody", new RegistrationBody());				// Se vor face verificarile cu smtp4dev deschis
+       return "registration";			
     }
   
     @PostMapping(path = "/register", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)

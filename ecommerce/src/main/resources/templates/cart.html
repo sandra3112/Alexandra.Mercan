@@ -79,7 +79,7 @@ body {
 										th:onclick="'adjustQuantity(this, 1)'"
 										th:data-item-id="${item.id}">+</button>
 								</td>
-								<td class="align-right"><span
+								<td class="align-right" id="amountColumn"><span
 									th:text="${#numbers.formatDecimal(item.amount, 2, 'COMMA', 2, 'POINT')}"></span>
 									<span> lei</span></td>
 								<!-- Butoane delete, refresh -->
@@ -90,7 +90,8 @@ body {
 										<i class="fas fa-sync"></i>
 									</button> <!-- Buton Delete Item -->
 									<button class="btn btn-outline-secondary ml-2"
-										th:onclick="'deleteItem(\'' + ${item.id} + '\')'">
+										th:onclick="'deleteItem(' + ${item.id} + ')'"
+										onclick="deleteItem(item.id)">
 										<i class="fas fa-trash"></i>
 									</button>
 								</td>
@@ -107,18 +108,14 @@ body {
 					</table>
 				</div>
 			</th:block>
-			<!-- Buton refresh cart -->
 			<button class="btn btn-primary mr-5" onclick="refreshEntireCart()">Actualizeaza
 				cosul</button>
-			<!-- Buton golire cart -->
 			<button class="btn btn-primary mr-5" onclick="clearEntireCart()">Goleste
 				cosul</button>
-			<!-- Buton intoarcere la produse -->
 			<button class="btn btn-primary mr-5" onclick="returnToProducts()">Continua
 				cumparaturile</button>
 			<p>&nbsp;</p>
 			<p>&nbsp;</p>
-			<!-- Add a button to finalize the order -->
 			<a class="btn btn-primary float-right"
 				th:href="'/checkout/' + ${userId}">Finalizeaza comanda</a>
 			<p>&nbsp;</p>
@@ -131,68 +128,83 @@ body {
 	<div class="container" th:replace="~{layout :: layout_footer}"></div>
 </footer>
 <script defer>
+
 function adjustQuantity(button, increment) {
-    const itemId = button.getAttribute('data-item-id');
 
-    fetch('/cart/adjustQuantity', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ itemId: itemId, increment: increment }),
-    })
-    .then(response => {
-        console.log('Full response:', response);
+	const itemId = button.getAttribute('data-item-id'); 
+	fetch('/cart/adjustQuantity', { 
+		method: 'POST', 
+		headers: { 
+			'Content-Type': 'application/json', 
+			}, 
+			body: JSON.stringify({ itemId: itemId, increment: increment }), 
+			}) 
+	.then(response => 
+	{ 
+		console.log('Full response:', response); 
+	
 
-        const contentType = response.headers.get('content-type');
-        if (contentType && contentType.includes('application/json')) {
-            return response.json();
-        } else {
-            return response.text(); 
-        }
-    })
-    .then(data => {
-        console.log('Response body:', data);
+	const contentType = response.headers.get('content-type'); 
+	if (contentType && contentType.includes('application/json')) {
+		return response.json(); 
+		} else { 
+			return response.text(); 
 
-    })
-    .catch(error => {
-        console.error('Error:', error);
-    });
+			} 
+	}) 
+	.then(data => { 
+
+		console.log('Response body:', data); 
+		refreshPage();
+
+		}) 
+		.catch(error => { 
+			console.error('Error:', error); 
+			}); 
+	} 
+	
+
+function refreshPage() {
+    location.reload();
 }
 
+	
 function refreshItem(button) {
     const itemId = button.getAttribute('data-item-id');
 
-    fetch('/cart/adjustQuantity', {
-        method: 'POST',
+   
+    fetch('/cart/adjustQuantity', { 
+        method: 'POST', 
         headers: {
-            'Content-Type': 'application/json',
-        },
+            'Content-Type': 'application/json', 
+        }, 
         body: JSON.stringify({ itemId: itemId, increment: 0 }), 
     })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error('Adjustment failed');
-        }
-        return response.text(); 
+    .then(response => { 
+        if (!response.ok) { 
+            throw new Error('Adjustment failed'); 
+        } 
+        return response.json(); 
     })
-    .then(data => {
-        console.log('Data received:', data);
-
-        if (data === 'Adjustment successful') {
- 
-            location.reload();
+    .then(data => { 
+        console.log('Data received:', data); 
+        
+   
+        if (data.success === true) {
+    
+            refreshPage();
         } else {
-            console.error('Adjustment failed');
-        }
+    
+            deleteItem(itemId);
+        } 
     })
-    .catch(error => {
-        console.error('Error:', error);
-    });
+    .catch(error => { 
+        console.error('Error:', error); 
+    }); 
 }
-
+	
 function deleteItem(itemId) {
-
+  
     fetch('/cart/deleteItem', {
         method: 'POST',
         headers: {
@@ -209,8 +221,9 @@ function deleteItem(itemId) {
     .then(data => {
         console.log('Data received:', data);
 
-        if (data === 'Item deleted successfully') {
- 
+  
+        if (data.includes('Articol sters cu succes')) {
+       
             location.reload();
         } else {
             console.error('Deletion failed');
@@ -220,8 +233,11 @@ function deleteItem(itemId) {
         console.error('Error:', error);
     });
 }
-
-function refreshEntireCart() {
+	
+	
+	
+	function refreshEntireCart() {
+  
     fetch('/cart/refresh', {
         method: 'POST',
         headers: {
@@ -237,8 +253,9 @@ function refreshEntireCart() {
     .then(data => {
         console.log('Data received:', data);
 
-        if (data === 'Cart refreshed successfully') {
-
+    
+        if (data.includes('Cos actualizat cu success')) {
+         
             location.reload();
         } else {
             console.error('Refresh failed');
@@ -248,41 +265,45 @@ function refreshEntireCart() {
         console.error('Error:', error);
     });
 }
+	
+	
+	function clearEntireCart() {
+	  
+	    fetch('/cart/clear', {
+	        method: 'POST',
+	        headers: {
+	            'Content-Type': 'application/json',
+	        },
+	    })
+	    .then(response => {
+	        if (!response.ok) {
+	            throw new Error('Clear failed');
+	        }
+	        return response.text();
+	    })
+	    .then(data => {
+	        console.log('Data received:', data);
 
-function clearEntireCart() {
+	      
+	        if (data.includes('Cos de cumparaturi golit')) {
+	 
+	            location.reload();
+	        } else {
+	            console.error('Clear failed');
+	        }
+	    })
+	    .catch(error => {
+	        console.error('Error:', error);
+	    });
+	}
 
-    fetch('/cart/clear', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-    })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error('Clear failed');
-        }
-        return response.text();
-    })
-    .then(data => {
-        console.log('Data received:', data);
+	
+	
+	function returnToProducts() { 
+		
+		window.location.href = '/product'; 
+		} 
 
- 
-        if (data === 'Cart cleared successfully') {
- 
-            location.reload();
-        } else {
-            console.error('Clear failed');
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-    });
-}
-
-function returnToProducts() {
-  
-    window.location.href = '/product'; 
-}
-</script>
+	</script>
 </body>
 </html>

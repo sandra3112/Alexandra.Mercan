@@ -1,10 +1,12 @@
 package com.ecommerce.controller;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -18,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpSession;
 
 import com.ecommerce.api.model.AdjustmentRequest;
@@ -123,9 +126,35 @@ public class ShoppingCartController {
     }
     
     @PostMapping("/adjustQuantity")
-    public ResponseEntity<String> adjustQuantity(@RequestBody AdjustmentRequest adjustmentRequest) {
-        shoppingCartService.adjustQuantity(adjustmentRequest.getItemId(), adjustmentRequest.getIncrement());
-        return ResponseEntity.ok("Ajustare cu succes");
+    public ResponseEntity<Map<String, Object>> adjustQuantity(@RequestBody AdjustmentRequest adjustmentRequest) {
+	    try {
+	        shoppingCartService.adjustQuantity(adjustmentRequest.getItemId(), adjustmentRequest.getIncrement());
+
+	        // Retrieve the updated ShoppingCart
+	        ShoppingCart updatedCartItem = shoppingCartService.getShoppingCartItem(adjustmentRequest.getItemId());
+
+	        Map<String, Object> response = new HashMap<>();
+	        response.put("success", true);
+	        response.put("message", "Ajustare cu succes");
+	        response.put("newQuantity", updatedCartItem.getQuantity());
+	        response.put("newAmount", updatedCartItem.getAmount());
+
+	        return ResponseEntity.ok(response);
+	    } catch (EntityNotFoundException e) {
+	        // Handle the case where the ShoppingCart is not found
+	        Map<String, Object> response = new HashMap<>();
+	        response.put("success", false);
+	        response.put("message", "Articol cos de cumparaturi negasit");
+
+	        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+	    } catch (Exception e) {
+	        // Handle other exceptions...
+	        Map<String, Object> response = new HashMap<>();
+	        response.put("success", false);
+	        response.put("message", "Ajustare failed");
+
+	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+	    }
     }
 
     @PostMapping("/deleteItem")

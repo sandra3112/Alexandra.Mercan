@@ -87,11 +87,18 @@ public class ShoppingCartService {
 	int newQuantity = cartItem.getQuantity() + increment;
 	newQuantity = Math.max(newQuantity, 0);
 
-	cartItem.setQuantity(newQuantity);
-        double newAmount = cartItem.getProductPrice() * cartItem.getQuantity();
-        cartItem.setAmount(newAmount);
+	System.out.println("itemId: " + itemId);
+	System.out.println("increment: " + increment);
+	System.out.println("oldQuantity: " + cartItem.getQuantity());
+	System.out.println("newQuantity: " + newQuantity);
 
-        shoppingCartRepository.save(cartItem);
+	cartItem.setQuantity(newQuantity);
+	double newAmount = cartItem.getProductPrice() * cartItem.getQuantity();
+	cartItem.setAmount(newAmount);
+
+	System.out.println("newAmount: " + newAmount);
+
+	shoppingCartRepository.save(cartItem);
     }
 
     public void deleteItem(Long itemId) {
@@ -118,4 +125,15 @@ public class ShoppingCartService {
             refreshItem(item.getId());
         }
     }   
+    
+    public ShoppingCart getShoppingCartItem(Long itemId) {
+        return shoppingCartRepository.findById(itemId)
+                .orElseThrow(() -> new EntityNotFoundException("Articol cos de cumparaturi negasit"));
+    }
+    
+    public void removeItemsAfterOrderPlaced(List<ShoppingCart> cartItems) {
+	for (ShoppingCart item : cartItems) {
+	    shoppingCartRepository.delete(item);
+	}
+    }
 }
